@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">BinanceWebSocketApp</string>
+    <string name="perpetual">Perpetual</string>
+    <string name="percent">%1$s percent</string>
+</resources>
