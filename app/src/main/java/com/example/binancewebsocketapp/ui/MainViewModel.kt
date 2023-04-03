@@ -15,6 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,8 +29,8 @@ class MainViewModel @Inject constructor(
     private val _isConnecting = MutableStateFlow(false)
     val isConnecting: StateFlow<Boolean> = _isConnecting
 
-    private val _coinList: MutableStateFlow<List<BinanceCoinItem>> = MutableStateFlow(arrayListOf())
-    val coinList: StateFlow<List<BinanceCoinItem>> = _coinList
+    private val _coinList: MutableStateFlow<ArrayList<BinanceCoinItem>> = MutableStateFlow(arrayListOf())
+    val coinList: StateFlow<ArrayList<BinanceCoinItem>> = _coinList
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
@@ -59,7 +60,19 @@ class MainViewModel @Inject constructor(
 
     override fun onResponse(response: List<BinanceCoinItem>?) {
         Log.i(TAG, "onResponse: $response")
-        _coinList.value = response ?: arrayListOf()
+        response?.let { newItems -> addOrUpdateCoins(newItems)}
+    }
+
+    private fun addOrUpdateCoins(newItems: List<BinanceCoinItem>) {
+        _coinList.value = arrayListOf<BinanceCoinItem>().let { prevItems ->
+            _coinList.value.forEach { prevItems.add(it.copy()) }
+            newItems.forEach { newItem ->
+                prevItems.find { it.symbol == newItem.symbol }
+                    ?.update(newItem)
+                    ?: prevItems.add(newItem)
+            }
+            prevItems
+        }
     }
 
     companion object {

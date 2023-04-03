@@ -1,5 +1,6 @@
 package com.example.binancewebsocketapp.ui
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -9,7 +10,8 @@ import com.example.binancewebsocketapp.R
 import com.example.binancewebsocketapp.data.BinanceCoinItem
 import com.example.binancewebsocketapp.databinding.ItemCoinBinding
 
-class BinanceCoinsAdapter : ListAdapter<BinanceCoinItem, BinanceCoinsAdapter.BinanceCoinsViewHolder>(BinanceCoinDiffUtil()) {
+class BinanceCoinsAdapter :
+    ListAdapter<BinanceCoinItem, BinanceCoinsAdapter.BinanceCoinsViewHolder>(BinanceCoinDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BinanceCoinsViewHolder =
         BinanceCoinsViewHolder(
@@ -23,18 +25,21 @@ class BinanceCoinsAdapter : ListAdapter<BinanceCoinItem, BinanceCoinsAdapter.Bin
     inner class BinanceCoinsViewHolder(private val binding: ItemCoinBinding) :
         ViewHolder(binding.root) {
 
-            fun onBind(item: BinanceCoinItem) {
-                binding.run {
-                    symbolTv.text = item.symbol
-                    currentValueTv.text = item.lastPrice
-                    val percent = (item.priceChangePercent.toFloat() / 100).toString()
-                    changeInPercentTv.text = root.context.getString(R.string.percent, percent)
-                }
+        fun onBind(item: BinanceCoinItem) {
+            binding.run {
+                symbolTv.text = item.symbol
+                currentValueTv.text = item.lastPrice
+                changeInPercentTv.text =
+                    root.context.getString(R.string.percent, item.priceChangePercent)
+                val color = if (item.priceChangePercent.first() == '-') Color.RED
+                else Color.GREEN
+                changeInPercentTv.setTextColor(color)
             }
+        }
     }
 }
 
-class BinanceCoinDiffUtil(): DiffUtil.ItemCallback<BinanceCoinItem>() {
+class BinanceCoinDiffUtil() : DiffUtil.ItemCallback<BinanceCoinItem>() {
     override fun areItemsTheSame(oldItem: BinanceCoinItem, newItem: BinanceCoinItem): Boolean =
         oldItem.symbol == newItem.symbol
 
